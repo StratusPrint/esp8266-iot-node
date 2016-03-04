@@ -8,9 +8,9 @@ print("ESP8266 mode is: " .. wifi.getmode())
 
 -- Set the SSID of the module in AP mode and access password
 cfg.ap={}
-cfg.ap.ssid="STRATUS_PRINT_NODE_"..node.chipid()
+cfg.ap.ssid="SP_NODE_"..node.chipid()
 
-print("SSID: STRATUS_PRINT_NODE_"..node.chipid())
+print("SSID: SP_NODE_"..node.chipid())
 
 cfg.ap.pwd="alfanetwork"
 
@@ -37,6 +37,7 @@ led1 = 3 --GPIO0
 led2 = 4 --GPIO2
 gpio.mode(led1, gpio.OUTPUT)
 gpio.mode(led2, gpio.OUTPUT)
+gpio.write(led1, gpio.HIGH);
 srv=net.createServer(net.TCP)
 srv:listen(80,function(conn)
   conn:on("receive", function(client,request)
@@ -76,7 +77,16 @@ srv:listen(80,function(conn)
         wifi.sta.config("RPiAP","alfanetwork")
         local ip = wifi.sta.getip()
         if ip == nil and joinCounter < joinMaxAttempts then
-          print('Connecting to WiFi Access Point ...')
+          print('Attempt '..joinCounter..' to Connect to WiFi Access Point ...')
+          for i=5,1,-1
+          do
+             gpio.write(led1, gpio.HIGH);
+               tmr.delay(150000)
+             gpio.write(led1, gpio.LOW);
+               tmr.delay(150000)
+             gpio.write(led1, gpio.HIGH);
+          end
+
           joinCounter = joinCounter +1
         else
           if joinCounter == joinMaxAttempts then
