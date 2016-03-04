@@ -80,11 +80,13 @@ srv:listen(80,function(conn)
           print('Attempt '..joinCounter..' to Connect to WiFi Access Point ...')
           for i=5,1,-1
           do
-             gpio.write(led1, gpio.HIGH);
+             gpio.write(led2, gpio.HIGH);
                tmr.delay(150000)
-             gpio.write(led1, gpio.LOW);
+             gpio.write(led2, gpio.LOW);
                tmr.delay(150000)
-             gpio.write(led1, gpio.HIGH);
+             gpio.write(led2, gpio.HIGH);
+             tmr.delay(150000)
+             gpio.write(led2, gpio.LOW);
           end
 
           joinCounter = joinCounter +1
