@@ -14,8 +14,10 @@ RELEASES= curl -s https://api.github.com/repos/nodemcu/nodemcu-firmware/releases
 ######################################################################
 # End of user config
 ######################################################################
+HTTP_FILES := $(wildcard http/*)
 LUA_FILES := \
    init.lua \
+	 httpserver.lua\
 
 # Print usage
 usage:
@@ -23,17 +25,25 @@ usage:
 	@echo "make list                 to list all files"
 	@echo "make nuke                 format filesystem"
 	@echo "make flash                reflash newest firmware"
+	@echo "make upload_http          to upload http files"
 	@echo $(TEST)
 
 # Upload all
 upload_all: $(LUA_FILES) $(HTTP_FILES)
 	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p $(PORT) upload $(foreach f, $^, $(f)) --restart
 
+# Upload http
+upload_http: $(HTTP_FILES)
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p $(PORT) upload $(foreach f, $^, $(f)) --restart
+
+#list files on chip
 list:
 	@python $(NODEMCU-UPLOADER) -p $(PORT) file list
 
+#reformat the filesystem
 nuke:
 	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p $(PORT) file format
 
+#flash the firmware
 flash:
 	python $(ESP-TOOL) --port $(PORT) write_flash 0x00000 $(FIRMWARE)

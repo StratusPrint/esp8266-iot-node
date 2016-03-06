@@ -38,6 +38,29 @@ led2 = 4 --GPIO2
 gpio.mode(led1, gpio.OUTPUT)
 gpio.mode(led2, gpio.OUTPUT)
 gpio.write(led1, gpio.HIGH);
+
+-- Compile server code and remove original .lua files.
+-- This only happens the first time afer the .lua files are uploaded.
+
+local compileAndRemoveIfNeeded = function(f)
+   if file.open(f) then
+      file.close()
+      print('Compiling:', f)
+      node.compile(f)
+      file.remove(f)
+      collectgarbage()
+   end
+end
+
+local serverFiles = {
+   'httpserver.lua',
+}
+for i, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
+
+compileAndRemoveIfNeeded = nil
+serverFiles = nil
+collectgarbage()
+
 srv=net.createServer(net.TCP)
 srv:listen(80,function(conn)
   conn:on("receive", function(client,request)
@@ -52,18 +75,22 @@ srv:listen(80,function(conn)
         _GET[k] = v
       end
     end
+    if (wifi.getmode() == wifi.SOFTAP) then
     buf = buf.."<h1>Stratus Print Node Configuration</h1>";
     buf = buf.."<h2>Wifi Credentials</h2>";
     buf = buf.."<form method=\"get\">";
     buf = buf.."SSID: <input type=\"text\" name=\"ssid\"><br>";
-    buf = buf.."Network Key: <input type=\"text\" name=\"nkey\"><br>";
+    buf = buf.."Network Key: <input type=\"password\" name=\"nkey\"><br>";
     buf = buf.."<input type=\"submit\" value=\"Submit\"></form>";
-
+  else
+    buf = buf.."<h1>Stratus Print Node Online</h1>";
+  end
     client:send(buf);
     client:close();
     collectgarbage();
+
     local _on,_off = "",""
-    if(_GET.ssid and _GET.nkey) then
+    if(vars~=nil and (_GET.ssid and _GET.nkey)) then
       local joinCounter = 0
       local joinMaxAttempts = 6
       cfg.stationconfig.ssid = _GET.ssid        -- Name of the WiFi network you want to join
@@ -74,7 +101,6 @@ srv:listen(80,function(conn)
       wifi.setmode(cfg.mode)
       wifi.sta.config(cfg.stationconfig.ssid,cfg.stationconfig.pwd)
       tmr.alarm(0, 3000, 1, function()
-        wifi.sta.config("RPiAP","alfanetwork")
         local ip = wifi.sta.getip()
         if ip == nil and joinCounter < joinMaxAttempts then
           print('Attempt '..joinCounter..' to Connect to WiFi Access Point ...')
@@ -94,10 +120,12 @@ srv:listen(80,function(conn)
           if joinCounter == joinMaxAttempts then
             print('Failed to connect to WiFi Access Point.')
           else
+            gpio.write(led2, gpio.HIGH);
             print("Setting up ESP8266 for station mode…Please wait.")
             print("STRATUS PRINT NODE IP now is: " .. wifi.sta.getip())
 
             print("STRATUS PRINT AP IP now is: " .. wifi.ap.getip())
+            dofile("httpserver.lc")
           end
           tmr.stop(0)
           joinCounter = nil
