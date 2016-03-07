@@ -1,2 +1,2 @@
 # Esp8266 IoT Node
-Universal internet of things node.
+Internet of thing node based on nodemcu.
