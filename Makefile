@@ -20,6 +20,7 @@ LUA_FILES := \
 	 httpserver.lua\
 	 httpserver-request.lua\
 	 httpserver-static.lua\
+	 httpserver-config.lua\
 
 # Print usage
 usage:

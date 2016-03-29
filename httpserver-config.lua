@@ -1,6 +1,8 @@
 -- httpserver-config
 -- Author: Nolan Foster
 cfg={}
+cfg.debug = true
+
 cfg.mode = wifi.SOFTAP -- both station and access point
 
 cfg.ap={}
