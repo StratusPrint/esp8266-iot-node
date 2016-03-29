@@ -12,9 +12,9 @@ local compileAndRemoveIfNeeded = function(f)
 end
 
 local serverFiles = {
-   'httpserver.lua',
-   'httpserver-static.lua',
-   'httpserver-config.lua',
+   'server/server.lua',
+   'server/static.lua',
+   'server/config.lua',
 }
 for i, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
 
@@ -22,7 +22,7 @@ compileAndRemoveIfNeeded = nil
 serverFiles = nil
 collectgarbage()
 
-cfg = dofile("httpserver-config.lc")
+cfg = dofile("server/config.lc")
 
 -- Set the wifi mode (default: AP)
 wifi.setmode(cfg.mode)
@@ -65,7 +65,7 @@ srv:listen(80,function(conn)
         -- Define some variables
   		local file_name = ""
   		local file_type = ""
-  		local serve_file = dofile("httpserver-static.lc")
+  		local serve_file = dofile("server/static.lc")
 
       file_name = "http/register.html"
 			file_type = "text/html"
@@ -107,7 +107,7 @@ srv:listen(80,function(conn)
             print("STRATUS PRINT NODE IP now is: " .. wifi.sta.getip())
 
             print("STRATUS PRINT AP IP now is: " .. wifi.ap.getip())
-            dofile("httpserver.lc")
+            dofile("server/server.lc")
           end
           tmr.stop(0)
           joinCounter = nil
