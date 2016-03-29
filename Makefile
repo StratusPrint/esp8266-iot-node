@@ -8,7 +8,7 @@ ESP-TOOL=esptool/esptool.py
 #path to firmware
 FIRMWARE=bin/nodemcu_integer_*
 # Serial port
-PORT=/dev/ttyUSB0
+PORT=ttyUSB0
 SPEED=115200
 RELEASES= curl -s https://api.github.com/repos/nodemcu/nodemcu-firmware/releases/latest | jq -r '.assets[] | select(.name) | .browser_download_url'
 ######################################################################
@@ -29,24 +29,32 @@ usage:
 	@echo "make nuke                 format filesystem"
 	@echo "make flash                reflash newest firmware"
 	@echo "make upload_http          to upload http files"
-	@echo $(TEST)
+	@echo "make tty                  check if chip is connected to "$(PORT)
+	@echo "make baud                 check baud rate of port "$(PORT)
 
 # Upload all
 upload_all: $(LUA_FILES) $(HTTP_FILES)
-	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p $(PORT) upload $(foreach f, $^, $(f)) --restart
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
 
 # Upload http
 upload_http: $(HTTP_FILES)
-	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p $(PORT) upload $(foreach f, $^, $(f)) --restart
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
 
 #list files on chip
 list:
-	@python $(NODEMCU-UPLOADER) -p $(PORT) file list
+	@python $(NODEMCU-UPLOADER) -p /dev/$(PORT) file list
 
 #reformat the filesystem
 nuke:
-	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p $(PORT) file format
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) file format --restart
 
 #flash the firmware
 flash:
-	python $(ESP-TOOL) --port $(PORT) write_flash 0x00000 $(FIRMWARE)
+	@python $(ESP-TOOL) --port /dev/$(PORT) write_flash 0x00000 $(FIRMWARE)
+
+#test connection
+tty:
+	dmesg | grep $(PORT)
+
+baud:
+	stty -F /dev/$(PORT)
