@@ -18,6 +18,8 @@ HTTP_FILES := $(wildcard http/*)
 LUA_FILES := \
    init.lua \
 	 httpserver.lua\
+	 httpserver-request.lua\
+	 httpserver-static.lua\
 
 # Print usage
 usage:

@@ -1,44 +1,3 @@
-cfg={}
-cfg.mode = wifi.SOFTAP -- both station and access point
-
--- put module in AP mode
-wifi.setmode(cfg.mode)
-print("Stratus Print Wifi Node")
-print("ESP8266 mode is: " .. wifi.getmode())
-
--- Set the SSID of the module in AP mode and access password
-cfg.ap={}
-cfg.ap.ssid="SP_NODE_"..node.chipid()
-
-print("SSID: SP_NODE_"..node.chipid())
-
-cfg.ap.pwd="alfanetwork"
-
-cfg.ipconfig = {}
-cfg.ipconfig.ip = "192.168.1.1"
-cfg.ipconfig.netmask = "255.255.255.0"
-cfg.ipconfig.gateway = "192.168.1.1"
-
-cfg.stationconfig = {}
-cfg.stationconfig.ssid = "Internet"   -- Name of the WiFi network you want to join
-cfg.stationconfig.pwd =  "password"   -- Password for the WiFi network
-
--- Now you should see an SSID wireless router named STRATUS_PRINT_NODE_###... when you scan for available WIFI networks
-if (wifi.getmode() == wifi.SOFTAP) then
-  wifi.ap.config(cfg.ap)
-  wifi.ap.setip(cfg.ipconfig)
-elseif (wifi.getmode() == wifi.STATION) then
-  print(cfg.stationconfig.ssid)
-  wifi.sta.config(cfg.stationconfig.ssid,cfg.stationconfig.pwd)
-end
-ap_mac = wifi.ap.getmac()
-
-led1 = 3 --GPIO0
-led2 = 4 --GPIO2
-gpio.mode(led1, gpio.OUTPUT)
-gpio.mode(led2, gpio.OUTPUT)
-gpio.write(led1, gpio.HIGH);
-
 -- Compile server code and remove original .lua files.
 -- This only happens the first time afer the .lua files are uploaded.
 
@@ -54,6 +13,8 @@ end
 
 local serverFiles = {
    'httpserver.lua',
+   'httpserver-static.lua',
+   'httpserver-config.lua',
 }
 for i, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
 
@@ -61,8 +22,33 @@ compileAndRemoveIfNeeded = nil
 serverFiles = nil
 collectgarbage()
 
+cfg = dofile("httpserver-config.lc")
+
+-- Set the wifi mode (default: AP)
+wifi.setmode(cfg.mode)
+print("Stratus Print Wifi Node")
+print("ESP8266 mode is: " .. wifi.getmode())
+
+-- Now you should see an SSID wireless router named STRATUS_PRINT_NODE_###...
+--- when you scan for available WIFI networks
+if (wifi.getmode() == wifi.SOFTAP) then
+  wifi.ap.config(cfg.ap)
+  wifi.ap.setip(cfg.ipconfig)
+elseif (wifi.getmode() == wifi.STATION) then
+  print(cfg.stationconfig.ssid)
+  wifi.sta.config(cfg.stationconfig.ssid,cfg.stationconfig.pwd)
+end
+ap_mac = wifi.ap.getmac()
+
+led1 = 3 --GPIO0
+led2 = 4 --GPIO2
+gpio.mode(led1, gpio.OUTPUT)
+gpio.mode(led2, gpio.OUTPUT)
+gpio.write(led1, gpio.HIGH);
+
 srv=net.createServer(net.TCP)
 srv:listen(80,function(conn)
+  file_offset = 0 -- global
   conn:on("receive", function(client,request)
     local buf = "";
     local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP");
@@ -76,19 +62,15 @@ srv:listen(80,function(conn)
       end
     end
     if (wifi.getmode() == wifi.SOFTAP) then
-    buf = buf.."<h1>Stratus Print Node Configuration</h1>";
-    buf = buf.."<h2>Wifi Credentials</h2>";
-    buf = buf.."<form method=\"get\">";
-    buf = buf.."SSID: <input type=\"text\" name=\"ssid\"><br>";
-    buf = buf.."Network Key: <input type=\"password\" name=\"nkey\"><br>";
-    buf = buf.."<input type=\"submit\" value=\"Submit\"></form>";
-  else
-    buf = buf.."<h1>Stratus Print Node Online</h1>";
-  end
-    client:send(buf);
-    client:close();
-    collectgarbage();
+        -- Define some variables
+  		local file_name = ""
+  		local file_type = ""
+  		local serve_file = dofile("httpserver-static.lc")
 
+      file_name = "http/register.html"
+			file_type = "text/html"
+			serve_file(client, file_name, file_type)
+    end
     local _on,_off = "",""
     if(vars~=nil and (_GET.ssid and _GET.nkey)) then
       local joinCounter = 0
@@ -139,4 +121,13 @@ srv:listen(80,function(conn)
     end
     collectgarbage();
   end)
+  conn:on("sent", function(client)
+			if file_offset > 0 then
+				fSend(client, file_name, file_type)
+			else
+				client:close()
+				print("Connection closed")
+				collectgarbage()
+			end
+		end)
 end)
