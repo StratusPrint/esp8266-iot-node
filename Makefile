@@ -22,10 +22,12 @@ INIT := \
 # Print usage
 usage:
 	@echo "make upload_all           to upload all"
-	@echo "make list                 to list all files"
-	@echo "make nuke                 format filesystem"
-	@echo "make flash                reflash newest firmware"
 	@echo "make upload_http          to upload http files"
+	@echo "make upload_server        to upload server files"
+	@echo "make upload_init          to upload init file"
+	@echo "make list                 to list all files"
+	@echo "make format               format filesystem"
+	@echo "make flash                reflash newest firmware"
 	@echo "make tty                  check if chip is connected to "$(PORT)
 	@echo "make baud                 check baud rate of port "$(PORT)
 
@@ -33,8 +35,18 @@ usage:
 upload_all: $(INIT) $(SERVER_FILES) $(HTTP_FILES)
 	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
 
+#Upload init
+
 # Upload http
 upload_http: $(HTTP_FILES)
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
+
+# Upload server
+upload_init: $(INIT)
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
+
+# Upload server
+upload_server: $(SERVER_FILES)
 	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
 
 #list files on chip
@@ -42,7 +54,7 @@ list:
 	@python $(NODEMCU-UPLOADER) -p /dev/$(PORT) file list
 
 #reformat the filesystem
-nuke:
+format:
 	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) file format --restart
 
 #flash the firmware
