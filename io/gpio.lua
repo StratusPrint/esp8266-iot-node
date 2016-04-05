@@ -1,5 +1,5 @@
-return function(pin)
-  pin = 4
+return function(gpio, type)
+  pin = gpio
   status, temp, humi, temp_dec, humi_dec = dht.read(pin)
   if status == dht.OK then
       print(string.format("DHT Temperature:%d.%03d;Humidity:%d.%03d\r\n",
