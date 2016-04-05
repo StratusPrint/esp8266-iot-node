@@ -6,10 +6,10 @@ NODEMCU-UPLOADER=nodemcu-uploader/nodemcu-uploader.py
 # Path to esptool
 ESP-TOOL=esptool/esptool.py
 #path to firmware
-FIRMWARE=bin/nodemcu_integer_*
+FIRMWARE=bin/nodemcu-master-10-modules-2016-04-05-19-45-37-integer.bin
 # Serial port
 PORT=ttyUSB0
-SPEED=115200
+SPEED=9600
 RELEASES= curl -s https://api.github.com/repos/nodemcu/nodemcu-firmware/releases/latest | jq -r '.assets[] | select(.name) | .browser_download_url'
 ######################################################################
 # End of user config
@@ -51,11 +51,11 @@ upload_server: $(SERVER_FILES)
 
 #list files on chip
 list:
-	@python $(NODEMCU-UPLOADER) -p /dev/$(PORT) file list
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) file list
 
 #reformat the filesystem
 format:
-	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) file format --restart
+	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) file format
 
 #flash the firmware
 flash:
