@@ -1,6 +1,7 @@
 # Esp8266 IoT Node
 
 # Usage
+Update paths and baud rate in the make script to fit your system
 ```
 make
 ```
