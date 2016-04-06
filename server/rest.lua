@@ -13,7 +13,7 @@ srv:listen(80,function(conn)
       end
     end
 
-    local f = file.open("http/index.html","r")
+    local f = file.open("http/register.html","r")
 		if f ~= nil then
 		    client:send(file.read())
         file.close()

@@ -33,10 +33,10 @@ File not found
 		client:send([[
 HTTP/1.1 200 OK
 Server: Stratus Print Node
-Content-Type: ]] .. file_type .. "\r\n" .. [[
-Content-Length: ]] .. file_size .. "\r\n" .. [[
-Connection: close
-]])
+Content-Type: ]] .. file_type .. "\r\n" ..
+[[Content-Length: ]] .. file_size .. "\r\n" ..
+[[Connection: close]] .. "\r\n\r\n"
+)
 	end
 
 	local CHUNK_SIZE = 1024

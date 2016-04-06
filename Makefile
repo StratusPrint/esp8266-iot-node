@@ -16,6 +16,7 @@ RELEASES= curl -s https://api.github.com/repos/nodemcu/nodemcu-firmware/releases
 ######################################################################
 HTTP_FILES := $(wildcard http/*)
 SERVER_FILES := $(wildcard server/*)
+IO_FILES := $(wildcard io/*)
 INIT := \
    init.lua \
 
@@ -32,7 +33,7 @@ usage:
 	@echo "make baud                 check baud rate of port "$(PORT)
 
 # Upload all
-upload_all: $(INIT) $(SERVER_FILES) $(HTTP_FILES)
+upload_all: $(INIT) $(SERVER_FILES) $(HTTP_FILES) $(IO_FILES)
 	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
 
 #Upload init
