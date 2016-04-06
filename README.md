@@ -1,10 +1,18 @@
 # Esp8266 IoT Node
-Internet of thing node based on nodemcu.
-
 
 # Usage
-run make
-
+```
+make
+```
+	@echo "make upload_all           to upload all"
+	@echo "make upload_http          to upload http files"
+	@echo "make upload_server        to upload server files"
+	@echo "make upload_init          to upload init file"
+	@echo "make list                 to list all files"
+	@echo "make format               format filesystem"
+	@echo "make flash                reflash newest firmware"
+	@echo "make tty                  check if chip is connected to "$(PORT)
+	@echo "make baud                 check baud rate of port "$(PORT)
 #API Documantation
 ##General JSON Response
 {"data":
