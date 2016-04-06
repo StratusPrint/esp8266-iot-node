@@ -6,7 +6,7 @@ Internet of thing node based on nodemcu.
 run make
 
 #API Documantation
-##JSON Response
+##General JSON Response
 {"data":
 {"value": [value]}
 }
@@ -17,9 +17,9 @@ gpio is to write or read on digital pins of the ESP8266. For example:<BR>
     /gpio/1/0    sets pin number 1 to a low state
     /gpio/1/1    sets pin number 1 to a high state
     /gpio/1      reads value from pin number 1 in JSON format
+##DHT
     /gpio/1/dht  reads dht sensor from pin number 1 
 ####DHT JSON RESPONSE
-##JSON Response
 {"data":
 {"temp": [float:value],
  "humi": [float:value]
