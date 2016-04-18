@@ -16,21 +16,26 @@ make
 	@echo "make baud                 check baud rate of port "$(PORT)
 #API Documantation
 ##General JSON Response
-{"data": [value]}
+{
+  "id": [chip id],
+  "data": [value]
+}
 ##GPIO
 gpio is to write or read on digital pins of the ESP8266. For example:<BR>
 /gpio/[int:pin #]/[int:state||string:type]
 ###Examples
     /gpio/1/o    sets pin number 1 to a output
     /gpio/1/i    sets pin number 1 to a input
-		/gpio/1/p    sets pin number 1 to a pwm [100]
+    /gpio/1/p    sets pin number 1 to a pwm [100]
     /gpio/1      reads value from pin number 1 in JSON format
 ##DHT
     /gpio/1/dht  reads dht sensor from pin number 1
 ####DHT JSON RESPONSE
 
-{"temp": [float:value],
- "humi": [float:value]
+{
+  "id": [chip id],
+  "temp": [float:value],
+  "humi": [float:value]
 }
 
 ##ADC
