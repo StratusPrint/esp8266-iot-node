@@ -21,8 +21,9 @@ make
 gpio is to write or read on digital pins of the ESP8266. For example:<BR>
 /gpio/[int:pin #]/[int:state||string:type]
 ###Examples
-    /gpio/1/0    sets pin number 1 to a low state
-    /gpio/1/1    sets pin number 1 to a high state
+    /gpio/1/o    sets pin number 1 to a output
+    /gpio/1/i    sets pin number 1 to a input
+		/gpio/1/p    sets pin number 1 to a pwm [100]
     /gpio/1      reads value from pin number 1 in JSON format
 ##DHT
     /gpio/1/dht  reads dht sensor from pin number 1
