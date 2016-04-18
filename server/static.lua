@@ -34,17 +34,21 @@ File not found
 HTTP/1.1 200 OK
 Server: Stratus Print Node
 Content-Type: ]] .. file_type .. "\r\n" ..
-[[Content-Length: ]] .. file_size .. "\r\n" ..
-[[Connection: close]] .. "\r\n\r\n"
+[[Connection: keep-alive]] .. "\r\n\r\n"
 )
 	end
 
 	local CHUNK_SIZE = 1024
+  if file_size < CHUNK_SIZE then
+    CHINK_SIZE = file_size
+  end
+
 	file.seek("set", file_offset)
 	local chunk = file.read(CHUNK_SIZE)
 	file.close()
 
 	if chunk then
+    print(chunk)
 		client:send(chunk)
 		print("sent chunk...")
 	end

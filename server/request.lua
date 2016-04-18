@@ -78,7 +78,7 @@ local function parseUri(uri)
    local fullExt = {}
 
    if uri == nil then return r end
-   if uri == "/" then uri = "/index.html" end
+   if uri == "/" then uri = "/register.html" end
    questionMarkPos, b, c, d, e, f = uri:find("?")
    if questionMarkPos == nil then
       r.file = uri:sub(1, questionMarkPos)

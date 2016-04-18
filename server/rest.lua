@@ -1,29 +1,111 @@
-srv=net.createServer(net.TCP)
-srv:listen(80,function(conn)
-  conn:on("receive", function(client,request)
-    local buf = "";
-    local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP");
-    if(method == nil)then
-      _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP");
-    end
-    local _GET = {}
-    if (vars ~= nil)then
-      for k, v in string.gmatch(vars, "(%w+)=(%w+)&*") do
-        _GET[k] = v
-      end
-    end
+-- Module declaration
+local REST = {}
 
-    local f = file.open("http/register.html","r")
-		if f ~= nil then
-		    client:send(file.read())
-        file.close()
-		else
-			client:send("<html>")
-			client:send("File not Found - 404 error.<BR>")
-			client:send("You have reached the end of the Internet of Things<BR>")
-		end
-    client:close();
-    collectgarbage();
+function REST.handle(conn, request)
 
-  end)
-end)
+-- Variables
+local pin
+local direction
+local value
+local answer = {}
+local gpio_type
+local variables = {}
+
+local get_gpio = dofile("io/gpio.lc")
+
+-- Variables
+variables["temperature"] = 30
+
+-- Find start
+local e = string.find(request, "/")
+local request_handle = string.sub(request, e + 1)
+
+-- Cut end
+e = string.find(request_handle, "HTTP")
+request_handle = string.sub(request_handle, 0, (e-2))
+
+-- Find gpio
+e = string.find(request_handle, "/")
+if e == nil then
+  gpio_type = request_handle
+else
+  gpio_type = string.sub(request_handle, 0, (e-1))
+
+  -- Find pin & direction
+  request_handle = string.sub(request_handle, (e+1))
+  e = string.find(request_handle, "/")
+
+
+  if e == nil then
+    pin = request_handle
+    pin = tonumber(pin)
+  else
+    pin = string.sub(request_handle, 0, (e-1))
+    pin = tonumber(pin)
+    request_handle = string.sub(request_handle, (e+1))
+    direction = request_handle
+  end
+end
+
+
+-- Debug output
+print('GPIO: ', gpio_type)
+print('Pin: ', pin)
+print('Type: ', direction)
+
+
+-- Apply direction
+if pin == nil then
+  for key,value in pairs(variables) do
+     if key == gpio then answer[key] = value end
+  end
+end
+
+
+if gpio_type == "gpio" then
+  if direction == "o" then
+    gpio.mode(pin, gpio.OUTPUT)
+    answer['message'] = "Pin D" .. pin .. " set to output"
+  elseif direction == "i" then
+    gpio.mode(pin, gpio.INPUT)
+    answer['message'] = "Pin D" .. pin .. " set to input"
+  elseif direction == "p" then
+    pwm.setup(pin, 100, 0)
+    pwm.start(pin)
+    answer['message'] = "Pin D" .. pin .. " set to PWM"
+	elseif direction == nil then
+	  data = get_gpio(pin,direction)
+	  answer['data'] = data.value
+  elseif direction == "dht" then
+    data = get_gpio(pin,direction)
+    answer['temp'] = string.format("%d.%03d",data.temp,data.temp_dec)
+    answer['humi'] = string.format("%d.%03d",data.humi,data.humi_dec)
+  end
+end
+
+
+if gpio_type == "adc" then
+  if direction == nil then
+    value = adc.read(pin)
+    answer['data'] = value
+  else
+    pwm.setduty(pin, direction)
+    answer['message'] = "Pin D" .. pin .. " set to " .. direction
+  end
+end
+
+conn:send("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n" .. table_to_json(answer) .. "\r\n")
+
+end
+
+function table_to_json(json_table)
+
+ok, json = pcall(cjson.encode, json_table)
+if ok then
+  return json
+else
+  return '{error:failed to encode}'
+end
+end
+
+return REST

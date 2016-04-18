@@ -11,11 +11,10 @@
 -- GPIO13 = 7
 -- GPIO14 = 5
 -- GPIO15 = 8
--- GPIO16 = 0 - wont work with firmware
+
 return function(gpio, type)
   data = {}
   if type == "dht" then
-
     data.status, data.temp, data.humi, data.temp_dec, data.humi_dec = dht.read(gpio)
 
     if data.status == dht.OK then
@@ -35,5 +34,9 @@ return function(gpio, type)
         data.status = "DHT timed out."
     end
     return data
+  elseif type = nil then
+    data.value = gpio.read(gpio)
+    return data  
   end
+
 end

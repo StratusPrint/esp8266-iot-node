@@ -13,6 +13,7 @@ end
 
 local serverFiles = {
    'server/rest.lua',
+   'server/server.lua',
    'server/static.lua',
    'server/config.lua',
    'io/gpio.lua',
@@ -54,37 +55,35 @@ srv:listen(80,function(conn)
 
   conn:on("receive", function(client,request)
 
-
-
-		local _, _, method, path, vars = string.find(request, "([A-Z]+) /([^?]*)%??(.*) HTTP")
+ local buf = "";
+    local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP");
+    if(method == nil)then
+      _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP");
+    end
     local _GET = {}
-			print(string.format("Incoming request: %s /%s?%s HTTP/1.1", method, path, vars))
-
-			if path == "favicon.ico" then
-				-- FAVICON REQUEST
-				file_name = "http/favicon.png"
-				file_type = "image/png"
-				serve_file(client, file_name, file_type)
-
-			elseif #vars > 0 then
-				-- NORMAL REQUEST
-				-- Get request parameters
-				for k, v in string.gmatch(vars, "(%w+)=(%w+)&*") do
-					_GET[k] = v
-				end
-      else
-        file_name = "http/register.html"
-  			file_type = "text/html"
-  			serve_file(client, file_name, file_type)
+    if (vars ~= nil)then
+      for k, v in string.gmatch(vars, "(%w+)=(%w+)&*") do
+        _GET[k] = v
       end
+    end
+    buf = buf.."<h1>Stratus Print Node Configuration</h1>";
+    buf = buf.."<h2>Wifi Credentials</h2>";
+    buf = buf.."<form method=\"get\">";
+    buf = buf.."SSID: <input type=\"text\" name=\"ssid\"><br>";
+    buf = buf.."Network Key: <input type=\"password\" name=\"nkey\"><br>";
+    buf = buf.."<input type=\"submit\" value=\"Submit\"></form>";
 
-    if(vars~=nil and (_GET.ssid and _GET.nkey)) then
+    client:send(buf);
+    client:close();
+    collectgarbage();
+    local _on,_off = "",""
+if(_GET.ssid and _GET.nkey) then
       local joinCounter = 0
       local joinMaxAttempts = 6
-
       cfg.stationconfig.ssid = _GET.ssid        -- Name of the WiFi network you want to join
       cfg.stationconfig.pwd =  _GET.nkey        -- Password for the WiFi network
-
+      print("SSID: " .. _GET.ssid)
+      print("NKEY: " .. _GET.nkey)
       srv:close()
       --close the server and set the module to STATION mode
       cfg.mode=wifi.STATION
@@ -103,10 +102,10 @@ srv:listen(80,function(conn)
           else
             print("Setting up ESP8266 for station mode…Please wait.")
             print("STRATUS PRINT NODE IP now is: " .. wifi.sta.getip())
-            print("STRATUS PRINT AP IP now is: " .. wifi.ap.getip())
+            --print("STRATUS PRINT AP IP now is: " .. wifi.ap.getip())
 
             --After successful connection run the rest server
-            dofile("server/rest.lc")
+            dofile("server/server.lc")
           end
           tmr.stop(0)
           joinCounter = nil
@@ -118,14 +117,10 @@ srv:listen(80,function(conn)
     collectgarbage();
   end)
 
-  
+
   conn:on("sent", function(client)
-			if file_offset > 0 then
-				serve_file(client, file_name, file_type)
-			else
 				client:close()
 				print("Connection closed")
 				collectgarbage()
-			end
 		end)
 end)
