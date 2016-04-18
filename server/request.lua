@@ -1,6 +1,4 @@
--- httpserver-request
--- Part of nodemcu-httpserver, parses incoming client requests.
--- Author: Marcos Kirsch
+-- request
 
 local function validateMethod(method)
    local httpMethods = {GET=true, HEAD=true, POST=true, PUT=true, DELETE=true, TRACE=true, OPTIONS=true, CONNECT=true, PATCH=true}
@@ -78,7 +76,9 @@ local function parseUri(uri)
    local fullExt = {}
 
    if uri == nil then return r end
-   if uri == "/" then uri = "/register.html" end
+   if uri == '/connect' then
+     print('connect')
+   end
    questionMarkPos, b, c, d, e, f = uri:find("?")
    if questionMarkPos == nil then
       r.file = uri:sub(1, questionMarkPos)

@@ -65,9 +65,11 @@ end
 if gpio_type == "gpio" then
   if direction == "o" then
     gpio.mode(pin, gpio.OUTPUT)
+	  answer['id'] = node.chipid()
     answer['message'] = "Pin D" .. pin .. " set to output"
   elseif direction == "i" then
     gpio.mode(pin, gpio.INPUT)
+		answer['id'] = node.chipid()
     answer['message'] = "Pin D" .. pin .. " set to input"
   elseif direction == "p" then
     pwm.setup(pin, 100, 0)
@@ -75,10 +77,12 @@ if gpio_type == "gpio" then
     answer['message'] = "Pin D" .. pin .. " set to PWM"
 	elseif direction == nil then
 	  data = get_gpio(pin,direction)
+		answer['id'] = node.chipid()
 	  answer['data'] = data.value
   elseif direction == "dht" then
     data = get_gpio(pin,direction)
-    answer['temp'] = string.format("%d.%03d",data.temp,data.temp_dec)
+    answer['id'] = node.chipid()
+		answer['temp'] = string.format("%d.%03d",data.temp,data.temp_dec)
     answer['humi'] = string.format("%d.%03d",data.humi,data.humi_dec)
   end
 end
@@ -87,9 +91,11 @@ end
 if gpio_type == "adc" then
   if direction == nil then
     value = adc.read(pin)
+		answer['id'] = node.chipid()
     answer['data'] = value
   else
     pwm.setduty(pin, direction)
+		answer['id'] = node.chipid()
     answer['message'] = "Pin D" .. pin .. " set to " .. direction
   end
 end

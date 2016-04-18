@@ -34,9 +34,10 @@ return function(gpio, type)
         data.status = "DHT timed out."
     end
     return data
-  elseif type = nil then
+  elseif type == nil then
     data.value = gpio.read(gpio)
-    return data  
+    print('Data: ' .. data.value)
+    return data
   end
 
 end

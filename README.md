@@ -16,9 +16,7 @@ make
 	@echo "make baud                 check baud rate of port "$(PORT)
 #API Documantation
 ##General JSON Response
-{"data":
-{"value": [value]}
-}
+{"data": [value]}
 ##GPIO
 gpio is to write or read on digital pins of the ESP8266. For example:<BR>
 /gpio/[int:pin #]/[int:state||string:type]
@@ -27,13 +25,13 @@ gpio is to write or read on digital pins of the ESP8266. For example:<BR>
     /gpio/1/1    sets pin number 1 to a high state
     /gpio/1      reads value from pin number 1 in JSON format
 ##DHT
-    /gpio/1/dht  reads dht sensor from pin number 1 
+    /gpio/1/dht  reads dht sensor from pin number 1
 ####DHT JSON RESPONSE
-{"data":
+
 {"temp": [float:value],
  "humi": [float:value]
 }
-}
+
 ##ADC
 ADC is to write or read on anolog pin of the ESP8266. For example:<BR>
 /adc/[char:r||w]
@@ -51,13 +49,13 @@ from urllib2 import Request, urlopen
 from json import dumps
 
 def get_temp(node_ip, gpio):
-    
+
     req = Request(node_ip+"/"+gpio+"/dht")
     response_body = urlopen(req).read()
     data = json.loads(response_body)
     temp = data['data']['temp']
     humidity = data['data']['humi']
     print("temp: "+temp+" hunidity: "+ humi)
-    
+
     return data
 ```
