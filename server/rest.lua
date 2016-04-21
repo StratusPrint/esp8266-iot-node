@@ -48,12 +48,6 @@ else
 end
 
 
--- Debug output
-print('GPIO: ', gpio_type)
-print('Pin: ', pin)
-print('Type: ', direction)
-
-
 -- Apply direction
 if pin == nil then
   for key,value in pairs(variables) do
@@ -63,6 +57,11 @@ end
 
 
 if gpio_type == "gpio" then
+  -- Debug output
+  print('GPIO: ', gpio_type)
+  print('Pin: ', pin)
+  print('Type: ', direction)
+
   if direction == "o" then
     gpio.mode(pin, gpio.OUTPUT)
 	  answer['id'] = node.chipid()

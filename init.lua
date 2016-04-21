@@ -16,7 +16,7 @@ local serverFiles = {
    'server/server.lua',
    'server/static.lua',
    'server/config.lua',
-   'server/request.lua',
+   'server/activate.lua',
    'io/gpio.lua',
 }
 for i, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
@@ -52,16 +52,25 @@ srv:listen(80,function(conn)
 	local file_name = ""
 	local file_type = ""
 	local serve_file = dofile("server/static.lc")
+  local activate = dofile("server/activate.lc")
 
 
   conn:on("receive", function(client,request)
-    local parse_req = dofile("server/request.lc")
-    req = parse_req(request)
-    local buf = "";
 
+ local buf = "";
+    local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP");
+    if(method == nil)then
+      _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP");
+    end
+    local _GET = {}
+    if (vars ~= nil)then
+      for k, v in string.gmatch(vars, "(%w+)=(%w+)&*") do
+        _GET[k] = v
+      end
+    end
     buf = buf.."<h1>Stratus Print Node Configuration</h1>";
     buf = buf.."<h2>Wifi Credentials</h2>";
-    buf = buf.."<form action=\"connect\" method=\"get\">";
+    buf = buf.."<form method=\"get\">";
     buf = buf.."SSID: <input type=\"text\" name=\"ssid\"><br>";
     buf = buf.."Network Key: <input type=\"password\" name=\"nkey\"><br>";
     buf = buf.."<input type=\"submit\" value=\"Submit\"></form>";
@@ -70,13 +79,13 @@ srv:listen(80,function(conn)
     client:close();
     collectgarbage();
     local _on,_off = "",""
-if(req.uri.args['ssid'] and req.uri.args['nkey']) then
+if(_GET.ssid and _GET.nkey) then
       local joinCounter = 0
       local joinMaxAttempts = 6
-      cfg.stationconfig.ssid = req.uri.args['ssid'] -- Name of the WiFi network you want to join
-      cfg.stationconfig.pwd =  req.uri.args['nkey'] -- Password for the WiFi network
-      print("SSID: " .. req.uri.args['ssid'])
-      print("NKEY: " ..req.uri.args['nkey'])
+      cfg.stationconfig.ssid = _GET.ssid        -- Name of the WiFi network you want to join
+      cfg.stationconfig.pwd =  _GET.nkey        -- Password for the WiFi network
+      print("SSID: " .. _GET.ssid)
+      print("NKEY: " .. _GET.nkey)
       srv:close()
       --close the server and set the module to STATION mode
       cfg.mode=wifi.STATION
@@ -92,13 +101,14 @@ if(req.uri.args['ssid'] and req.uri.args['nkey']) then
         else
           if joinCounter == joinMaxAttempts then
             print('Failed to connect to WiFi Access Point.')
-            node.restart()
           else
-            print("Setting up ESP8266 for station mode…Please wait.")
+            print("Setting up ESP8266 for station mode ... Please wait.")
             print("STRATUS PRINT NODE IP now is: " .. wifi.sta.getip())
-
-            --After successful connection run the rest server
-            dofile("server/server.lc")
+            --print("STRATUS PRINT AP IP now is: " .. wifi.ap.getip())
+          local ip, nm, gw = wifi.sta.getip()
+            activate(gw)
+                    --After successful connection run the rest server
+          --  dofile("server/server.lc")
           end
           tmr.stop(0)
           joinCounter = nil

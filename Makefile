@@ -6,7 +6,7 @@ NODEMCU-UPLOADER=nodemcu-uploader/nodemcu-uploader.py
 # Path to esptool
 ESP-TOOL=esptool/esptool.py
 #path to firmware
-FIRMWARE=bin/nodemcu-master-10-modules-2016-04-05-19-45-37-integer.bin
+FIRMWARE=bin/nodemcu-master-16-modules-2016-04-21-12-34-34-integer-stable.bin
 # Serial port
 PORT=ttyUSB0
 SPEED=9600
