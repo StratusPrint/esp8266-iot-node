@@ -14,6 +14,12 @@ make
 	@echo "make flash                reflash newest firmware"
 	@echo "make tty                  check if chip is connected to "$(PORT)
 	@echo "make baud                 check baud rate of port "$(PORT)
+	
+#Connecting to Hub
+1. Connect to the node directly through wifi
+2. navigate your browser to 192.168.4.1
+3. Input the hubs ssid and password and connect
+
 #API Documantation
 ##General JSON Response
 {"data": [value]}
@@ -23,7 +29,7 @@ gpio is to write or read on digital pins of the ESP8266. For example:<BR>
 ###Examples
     /gpio/1/o    sets pin number 1 to a output
     /gpio/1/i    sets pin number 1 to a input
-		/gpio/1/p    sets pin number 1 to a pwm [100]
+    /gpio/1/p    sets pin number 1 to a pwm [100]
     /gpio/1      reads value from pin number 1 in JSON format
 ##DHT
     /gpio/1/dht  reads dht sensor from pin number 1
@@ -54,8 +60,9 @@ def get_temp(node_ip, gpio):
     req = Request(node_ip+"/"+gpio+"/dht")
     response_body = urlopen(req).read()
     data = json.loads(response_body)
-    temp = data['data']['temp']
-    humidity = data['data']['humi']
+    id = data['id']
+    temp = data['temp']
+    humidity = data['humi']
     print("temp: "+temp+" hunidity: "+ humi)
 
     return data
