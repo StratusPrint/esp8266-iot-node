@@ -48,7 +48,11 @@ This will send data to an endpoint when triggered
   /gpio/[int:pin #]/trig
 ```
 ####Payload
-{"endpoint": url to send request to}
+{<BR>
+ "endpoint": url endpoint to send request to,<BR>
+ "host":host ip/url,<BR>
+ "port": port number<BR>
+ }
 
 ####Trigger JSON RESPONSE
 
