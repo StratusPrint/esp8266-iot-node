@@ -38,6 +38,19 @@ gpio is to write or read on digital pins of the ESP8266. For example:<BR>
   "humi": [float:value]
 }
 
+##Event Triggering [POST] **NOT YET IMPLEMENTED**
+This will send data to an endpoint when triggered
+  /gpio/[int:pin #]/trig
+####Payload
+{"endpoint": url to send request to}
+
+####Trigger JSON RESPONSE
+
+{
+  "id": [chip id],
+  "data": [bool:true]
+}
+
 ##ADC
 ADC is to write or read on anolog pin of the ESP8266. For example:<BR>
 /adc/[char:r||w]
