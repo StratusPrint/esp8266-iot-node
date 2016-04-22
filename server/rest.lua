@@ -74,15 +74,16 @@ if gpio_type == "gpio" then
     pwm.setup(pin, 100, 0)
     pwm.start(pin)
     answer['message'] = "Pin D" .. pin .. " set to PWM"
-	elseif direction == nil then
-	  data = get_gpio(pin,direction)
-		answer['id'] = node.chipid()
-	  answer['data'] = data.value
   elseif direction == "dht" then
     data = get_gpio(pin,direction)
     answer['id'] = node.chipid()
 		answer['temp'] = string.format("%d.%03d",data.temp,data.temp_dec)
     answer['humi'] = string.format("%d.%03d",data.humi,data.humi_dec)
+	else
+    print("Getting Data")
+	  value = gpio.read(pin)
+		answer['id'] = node.chipid()
+	  answer['data'] = value
   end
 end
 

@@ -34,9 +34,11 @@ return function(gpio, type)
         data.status = "DHT timed out."
     end
     return data
+  elseif type == "trig" then
+    gpio.mode(pin, gpio.INPUT)
+    --gpio.trig(pin, function)
   elseif type == nil then
     data.value = gpio.read(gpio)
-    print('Data: ' .. data.value)
     return data
   end
 
