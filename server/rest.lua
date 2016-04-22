@@ -2,7 +2,7 @@
 local REST = {}
 
 function REST.handle(conn, request)
-
+print(request)
 -- Variables
 local pin
 local direction
