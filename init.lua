@@ -14,11 +14,10 @@ end
 local serverFiles = {
    'server/rest.lua',
    'server/server.lua',
-   'server/static.lua',
    'server/config.lua',
-   'server/request.lua',
    'server/activate.lua',
    'io/gpio.lua',
+   'io/trig.lua',
 }
 for i, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
 

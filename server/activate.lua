@@ -8,7 +8,7 @@ return function(host)
 	conn:connect(5000,host)
 	conn:on("connection", function(conn, pl)
 			print("connected")
-			conn:send("GET ".."/sensors/activate?".."ip="..wifi.sta.getip()
+			conn:send("GET ".."/nodes/activate?".."ip="..wifi.sta.getip()
 								.."&id="..node.chipid()
 								.." HTTP/1.1\r\nHost: ".. host
 								.."// \r\n Connection: keep-alive\r\nAccept: */*\r\n\r\n")
