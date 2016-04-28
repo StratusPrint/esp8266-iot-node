@@ -94,9 +94,12 @@ if gpio_type == "gpio" then
     gpio.write(pin, gpio.LOW)
 	  answer['id'] = node.chipid()
     answer['data'] = "success"
-  elseif direction == "p" then
-    pwm.setup(pin, 100, 0)
+  elseif direction == "pon" then
+    pwm.setup(pin, 1, 512)
     pwm.start(pin)
+    answer['data'] = "success"
+  elseif direction == "poff" then
+    pwm.stop(pin)
     answer['data'] = "success"
   elseif direction == "dht" then
     data = get_gpio(pin,direction)
