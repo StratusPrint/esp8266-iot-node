@@ -30,11 +30,13 @@ end
 function onChange(pin)
     if gpio.read(pin) == 0 then
         ip, nm, gw = wifi.sta.getip()
+        answer['id'] = node.chipid()
         answer['data'] = "success"
         dofile("io/trig.lc")(gw, 5000 , "/nodes/trigger/callback", answer)
         tmr.delay(500000)
     end
 end
+
 -- Variables
 variables["temperature"] = 30
 
@@ -142,7 +144,7 @@ ok, json = pcall(cjson.encode, json_table)
 if ok then
   return json
 else
-  return '{error:failed to encode}'
+  return '{error:failed to encode json}'
 end
 end
 
