@@ -96,12 +96,18 @@ if gpio_type == "gpio" then
     gpio.write(pin, gpio.LOW)
 	  answer['id'] = node.chipid()
     answer['data'] = "success"
-  elseif direction == "pon" then
-    pwm.setup(pin, 1, 512)
-    pwm.start(pin)
-    answer['data'] = "success"
-  elseif direction == "poff" then
-    pwm.stop(pin)
+  elseif direction == "pwm" then
+    freq = string.sub(request_handle, (e+1))
+    duty = string.sub(request_handle, (e+1))
+    if freq !=nil and duty !=nil then
+      pwm.setup(pin, freq, duty)
+      pwm.start(pin)
+      answer['data'] = "success"
+    else
+      pwm.setup(pin, 1, 512)
+      pwm.start(pin)
+      answer['data'] = "no params given set to default freq:1, duty:512"
+    end
     answer['data'] = "success"
   elseif direction == "dht" then
     data = get_gpio(pin,direction)
