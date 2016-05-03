@@ -26,10 +26,11 @@ gpio is to write or read on digital pins of the ESP8266. For example:<BR>
 /gpio/[int:pin #]/[int:state||string:type]
 ```
 ###Examples
-    /gpio/1/o    sets pin number 1 to a output
-    /gpio/1/i    sets pin number 1 to a input
-    /gpio/1/p    sets pin number 1 to a pwm [100]
-    /gpio/1      reads value from pin number 1 in JSON format
+    /gpio/1/high    sets pin number 1 to a high
+    /gpio/1/low     sets pin number 1 to a low
+    /gpio/1/input   reads pin number 1 as an input
+    /gpio/1/pon     sets pin number 1 to a pwm [1][512]
+    
 ##DHT
 ```
     /gpio/1/dht  reads dht sensor from pin number 1
@@ -42,23 +43,15 @@ gpio is to write or read on digital pins of the ESP8266. For example:<BR>
   "humi": [float:value]
 }
 
-##Event Triggering [POST] **NOT YET IMPLEMENTED**
 This will send data to an endpoint when triggered
 ```
   /gpio/[int:pin #]/trig
 ```
-####Payload
-{<BR>
- "endpoint": url endpoint to send request to,<BR>
- "host":host ip/url,<BR>
- "port": port number<BR>
- }
-
 ####Trigger JSON RESPONSE
 
 {
   "id": [chip id],
-  "data": [bool:true]
+  "data": "trigger set"
 }
 
 ##ADC
