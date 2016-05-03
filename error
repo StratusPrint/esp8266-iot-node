@@ -1,0 +1,13 @@
+load 0x40100000, len 27852, room 16
+tail 12
+chksum 0x9c
+ho 0 tail 12 room 4
+load 0x3ffe8000, len 2260, room 12
+tail 8
+chksum 0xc4
+load 0x3ffe88d4, len 8, room 0
+tail 8
+chksum 0xf9
+csum 0xf9
+don't use rtc mem data
+rl

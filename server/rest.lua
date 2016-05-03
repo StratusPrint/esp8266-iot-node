@@ -2,7 +2,7 @@
 local REST = {}
 
 function REST.handle(conn, request)
-
+print(request)
 -- Variables
 local pin
 local direction
@@ -12,6 +12,30 @@ local gpio_type
 local variables = {}
 
 local get_gpio = dofile("io/gpio.lc")
+
+--trigger call back
+function debounce (func,pin)
+    local last = 0
+    local delay = 200000
+
+    return function (...)
+        local now = tmr.now()
+        if now - last < delay then return end
+
+        last = now
+        return func(pin)
+    end
+end
+
+function onChange(pin)
+    if gpio.read(pin) == 0 then
+        ip, nm, gw = wifi.sta.getip()
+        answer['id'] = node.chipid()
+        answer['data'] = "success"
+        dofile("io/trig.lc")(gw, 5000 , "/nodes/trigger/callback", answer)
+        tmr.delay(500000)
+    end
+end
 
 -- Variables
 variables["temperature"] = 30
@@ -48,12 +72,6 @@ else
 end
 
 
--- Debug output
-print('GPIO: ', gpio_type)
-print('Pin: ', pin)
-print('Type: ', direction)
-
-
 -- Apply direction
 if pin == nil then
   for key,value in pairs(variables) do
@@ -63,30 +81,52 @@ end
 
 
 if gpio_type == "gpio" then
-  if direction == "o" then
+  -- Debug output
+  print('GPIO: ', gpio_type)
+  print('Pin: ', pin)
+  print('Type: ', direction)
+
+  if direction == "high" then
     gpio.mode(pin, gpio.OUTPUT)
+    gpio.write(pin, gpio.HIGH)
 	  answer['id'] = node.chipid()
-    answer['message'] = "Pin D" .. pin .. " set to output"
-  elseif direction == "i" then
-    gpio.mode(pin, gpio.INPUT)
-		answer['id'] = node.chipid()
-    answer['message'] = "Pin D" .. pin .. " set to input"
-  elseif direction == "p" then
-    pwm.setup(pin, 100, 0)
-    pwm.start(pin)
-    answer['message'] = "Pin D" .. pin .. " set to PWM"
-	elseif direction == nil then
-	  data = get_gpio(pin,direction)
-		answer['id'] = node.chipid()
-	  answer['data'] = data.value
+    answer['data'] = "success"
+  elseif direction == "low" then
+    gpio.mode(pin, gpio.OUTPUT)
+    gpio.write(pin, gpio.LOW)
+	  answer['id'] = node.chipid()
+    answer['data'] = "success"
+  elseif direction == "pwm" then
+    freq = string.sub(request_handle, (e+1))
+    duty = string.sub(request_handle, (e+1))
+    if freq !=nil and duty !=nil then
+      pwm.setup(pin, freq, duty)
+      pwm.start(pin)
+      answer['data'] = "success"
+    else
+      pwm.setup(pin, 1, 512)
+      pwm.start(pin)
+      answer['data'] = "no params given set to default freq:1, duty:512"
+    end
+    answer['data'] = "success"
   elseif direction == "dht" then
     data = get_gpio(pin,direction)
     answer['id'] = node.chipid()
 		answer['temp'] = string.format("%d.%03d",data.temp,data.temp_dec)
     answer['humi'] = string.format("%d.%03d",data.humi,data.humi_dec)
+	elseif direction == "input" then
+    gpio.mode(pin, gpio.INPUT)
+    print("Getting Data")
+	  value = gpio.read(pin)
+		answer['id'] = node.chipid()
+	  answer['data'] = value
+	elseif direction == "trig" then
+    gpio.mode(pin,gpio.INT,gpio.PULLUP)
+    gpio.trig(pin,"down", debounce(onChange,pin))
+		answer['id'] = node.chipid()
+	  answer['data'] = "trigger set"
   end
 end
-
 
 if gpio_type == "adc" then
   if direction == nil then
@@ -96,7 +136,7 @@ if gpio_type == "adc" then
   else
     pwm.setduty(pin, direction)
 		answer['id'] = node.chipid()
-    answer['message'] = "Pin D" .. pin .. " set to " .. direction
+    answer['message'] = "success"
   end
 end
 
@@ -110,7 +150,7 @@ ok, json = pcall(cjson.encode, json_table)
 if ok then
   return json
 else
-  return '{error:failed to encode}'
+  return '{error:failed to encode json}'
 end
 end
 
