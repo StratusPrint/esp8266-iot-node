@@ -9,7 +9,7 @@ srv=net.createServer(net.TCP)
 print("Rest Server started")
 
 -- Start server
-srv:listen(80,function(conn)
+srv:listen(99,function(conn)
   conn:on("receive",function(conn,request)
     -- Handle requests
     rest.handle(conn, request)

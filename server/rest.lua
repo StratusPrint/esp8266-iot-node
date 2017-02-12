@@ -89,53 +89,53 @@ if gpio_type == "gpio" then
   if direction == "high" then
     gpio.mode(pin, gpio.OUTPUT)
     gpio.write(pin, gpio.HIGH)
-	  answer['id'] = node.chipid()
+    answer['id'] = node.chipid()
     answer['data'] = "success"
   elseif direction == "low" then
     gpio.mode(pin, gpio.OUTPUT)
     gpio.write(pin, gpio.LOW)
-	  answer['id'] = node.chipid()
+    answer['id'] = node.chipid()
     answer['data'] = "success"
   elseif direction == "pwm" then
     freq = string.sub(request_handle, (e+1))
     duty = string.sub(request_handle, (e+1))
-    if freq !=nil and duty !=nil then
-      pwm.setup(pin, freq, duty)
-      pwm.start(pin)
-      answer['data'] = "success"
-    else
+    if freq == nil and duty == nil then
       pwm.setup(pin, 1, 512)
       pwm.start(pin)
       answer['data'] = "no params given set to default freq:1, duty:512"
+    else
+      pwm.setup(pin, freq, duty)
+      pwm.start(pin)
+      answer['data'] = "success"
     end
     answer['data'] = "success"
   elseif direction == "dht" then
     data = get_gpio(pin,direction)
     answer['id'] = node.chipid()
-		answer['temp'] = string.format("%d.%03d",data.temp,data.temp_dec)
+    answer['temp'] = string.format("%d.%03d",data.temp,data.temp_dec)
     answer['humi'] = string.format("%d.%03d",data.humi,data.humi_dec)
-	elseif direction == "input" then
+ elseif direction == "input" then
     gpio.mode(pin, gpio.INPUT)
     print("Getting Data")
-	  value = gpio.read(pin)
-		answer['id'] = node.chipid()
-	  answer['data'] = value
-	elseif direction == "trig" then
+    value = gpio.read(pin)
+    answer['id'] = node.chipid()
+    answer['data'] = value
+ elseif direction == "trig" then
     gpio.mode(pin,gpio.INT,gpio.PULLUP)
     gpio.trig(pin,"down", debounce(onChange,pin))
-		answer['id'] = node.chipid()
-	  answer['data'] = "trigger set"
+    answer['id'] = node.chipid()
+    answer['data'] = "trigger set"
   end
 end
 
 if gpio_type == "adc" then
   if direction == nil then
     value = adc.read(pin)
-		answer['id'] = node.chipid()
+    answer['id'] = node.chipid()
     answer['data'] = value
   else
     pwm.setduty(pin, direction)
-		answer['id'] = node.chipid()
+    answer['id'] = node.chipid()
     answer['message'] = "success"
   end
 end

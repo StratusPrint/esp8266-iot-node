@@ -6,7 +6,7 @@ NODEMCU-UPLOADER=nodemcu-uploader/nodemcu-uploader.py
 # Path to esptool
 ESP-TOOL=esptool/esptool.py
 #path to firmware
-FIRMWARE=bin/nodemcu-master-16-modules-2016-04-21-12-34-34-integer-stable.bin
+FIRMWARE=bin/nodemcu-master-15-modules-2017-02-05-13-44-21-integer.bin
 # Serial port
 PORT=ttyUSB0
 SPEED=9600
@@ -33,7 +33,7 @@ usage:
 	@echo "make baud                 check baud rate of port "$(PORT)
 
 # Upload all
-upload_all: $(INIT) $(SERVER_FILES) $(HTTP_FILES) $(IO_FILES)
+upload_all: $(INIT) $(SERVER_FILES) $(IO_FILES)
 	@python $(NODEMCU-UPLOADER) -b $(SPEED) -p /dev/$(PORT) upload $(foreach f, $^, $(f)) --restart
 
 #Upload init

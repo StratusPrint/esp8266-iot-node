@@ -28,7 +28,6 @@ collectgarbage()
 -- Set the wifi mode (default: AP)
 wifi.setmode(wifi.STATIONAP)
 wifi.ap.config({ssid="SP_NODE_"..node.chipid(),auth=wifi.AUTH_OPEN})
-
 enduser_setup.start(
   function()
     ip, nm, gw  = wifi.sta.getip()
